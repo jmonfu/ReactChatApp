@@ -118,7 +118,6 @@ class SignupComponent extends React.Component {
       default:
         break;
     }
-    console.log(type, e);
   };
 
   submitSignup = e => {
