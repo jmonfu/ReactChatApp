@@ -41,7 +41,7 @@ class DashboardComponent extends React.Component {
                         chat = {this.state.chats[this.state.selectedChat]}>
                     </ChatViewComponent>
                 }
-                <ChatTextBoxComponent submitMessageFn={this.submitMessage}></ChatTextBoxComponent>
+                <ChatTextBoxComponent messageReadFn={this.messageRead} submitMessageFn={this.submitMessage}></ChatTextBoxComponent>
                 <Button className={classes.signOutBtn} onClick={this.signOut}>Sign Out</Button>
             </div>
             );
@@ -67,14 +67,35 @@ class DashboardComponent extends React.Component {
           });
       }
     
-      selectChat = (chatIndex) => {
-        this.setState({ selectedChat : chatIndex });
+      selectChat = async (chatIndex) => {
+        await this.setState({ selectedChat : chatIndex });
+        this.messageRead();
     }
 
     buildDocKey = (friend) => [this.state.email, friend].sort().join(':');
 
     newChatBtnClicked = () => this.setState({ newChatFormVisible: true, selectedChat: null});
     
+    messageRead = () => {
+        const dockey = this.buildDocKey(this.state.chats[this.state.selectedChat].users.filter(_usr => _usr !== this.state.email)[0])
+        if(this.clickedChatWhereNotSender(this.state.selectedChat)) {
+            firebase
+                .firestore()
+                .collection('chats')
+                .doc(dockey)
+                .update({ receiverHasRead: true })
+        } else {
+            console.log('Clicked message where the user was the sender');
+        }
+    }
+    clickedChatWhereNotSender = (chatIndex) => 
+        this.state.chats[chatIndex].messages[this.state.chats[chatIndex].messages.length - 1].sender !== this.state.email;
+    // {
+    //     // console.log('clickedChatWhereNotSender', this.state.chats[chatIndex].messages[this.state.chats[chatIndex].messages.length - 1].sender );
+    //     // console.log('clickedChatWhereNotSender', this.state.email);
+    //     // console.log('clickedChatWhereNotSender', this.state.chats[chatIndex].messages[this.state.chats[chatIndex].messages.length - 1].sender !== this.state.email);
+    // }
+
     componentDidMount = () => { 
         firebase.auth().onAuthStateChanged(async _usr => {
             if(!_usr){
