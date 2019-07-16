@@ -18,26 +18,21 @@ class ChatTextBoxComponent extends React.Component {
     const { classes } = this.props;
 
     return(
-        <div className={classes.chatTextBoxContainer}>
-          <TextField placeholder='Type your message...' 
-            onKeyUp={(e) => this.userTyping(e)}
-            id='chattextbox'
-            className={classes.chatTextBox}
-            onFocus={this.userClickedInput}></TextField>
-            <Send onClick={this.submitMessage} className={classes.sendBtn}></Send>
-        </div>
+      <div className={classes.chatTextBoxContainer}>
+        <TextField
+          placeholder='Type your message..' 
+          onKeyUp={(e) => this.userTyping(e)}
+          id='chattextbox' 
+          className={classes.chatTextBox}
+          onFocus={this.userClickedInput}>
+        </TextField>
+        <Send onClick={this.submitMessage} className={classes.sendBtn}></Send>
+      </div>
     );
   }
-
-  userTyping = (e) => {
-    e.keyCode === 13 ? this.submitMessage() : this.setState({chatText: e.target.value});
-  }
+  userTyping = (e) => e.keyCode === 13 ? this.submitMessage() : this.setState({ chatText: e.target.value });
   messageValid = (txt) => txt && txt.replace(/\s/g, '').length;
-
-  userClickedInput = () => {
-    this.props.messageReadFn()
-  }
-  
+  userClickedInput = () => this.props.userClickedInputFn();
   submitMessage = () => {
     if(this.messageValid(this.state.chatText)) {
       this.props.submitMessageFn(this.state.chatText);
